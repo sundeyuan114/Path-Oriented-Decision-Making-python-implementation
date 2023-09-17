@@ -1,11 +1,14 @@
-#Deyuan Sun ece6140 proj1 code starting on 9/4/2023
+# Deyuan Sun ece6140 proj1 code starting on 9/4/2023
+# Finished in 10-15 hrs
 import sys
 
 def test_print(gate_list:[], net_list:{}):
     print (net_list.keys())
+    print("self.number, self.value, self.input_gate, self.output_gate_list")    
     for value in net_list.keys():
         net_list[value].print_self()
     print("----------------")
+    print("self.name, self.value, self.number, self.net1, self.net2, self.net3")
     for gate in gate_list:
         gate.print_self()
     print("----------------")
@@ -117,6 +120,8 @@ def calc(gate):
             return net_list[str(gate.net1)].value | net_list[str(gate.net2)].value
         elif gate.name == 'NOR':
             return 1 ^ (net_list[str(gate.net1)].value | net_list[str(gate.net2)].value)
+        elif gate.name == 'XOR':
+            return net_list[str(gate.net1)].value ^ net_list[str(gate.net2)].value
     else:
         print("shouldn't ever be -1")
 def update_queue(used_net_tracking_list, gateQ):
@@ -175,17 +180,20 @@ if __name__ == "__main__":
     print(input_vector)
     #read_netlist done
     input_output_lists = Read_netlist(input_file_name)
-    #test_print(gate_list = gate_list, net_list = net_list)
+    
     #print(input_output_lists)
     #marked all value = -1 at init
 
     #now do the sim
     Simulation(input_output_lists, input_vector)
 
+    # test_print(gate_list = gate_list, net_list = net_list)
     # testit
     # test_print(gate_list = gate_list, net_list = net_list)
     rtstr = ""
     for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
         rtstr += str(net_list[output_port].value)
+        
+        # print(str(net_list[output_port].value))
 
     print(rtstr)
