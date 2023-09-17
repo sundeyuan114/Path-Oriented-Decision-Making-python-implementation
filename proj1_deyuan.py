@@ -1,5 +1,6 @@
 # Deyuan Sun ece6140 proj1 code starting on 9/4/2023
 # Finished in 10-15 hrs
+# Last modified 9/16/2023
 import sys
 
 def test_print(gate_list:[], net_list:{}):
@@ -12,7 +13,9 @@ def test_print(gate_list:[], net_list:{}):
     for gate in gate_list:
         gate.print_self()
     print("----------------")
-    
+def clear_all_values():
+    for key in net_list.keys():
+        net_list[key].value = -1
 
 # Limit the input str, making sure weird gates does not exist
 class Gate():
@@ -175,25 +178,33 @@ if __name__ == "__main__":
     pass
     # assign input file and output file here.
     input_file_name = sys.argv[1]
-    input_vector = sys.argv[2]
+    #input_vector = sys.argv[2]
 
-    print(input_vector)
+    #print(input_vector)
+
     #read_netlist done
     input_output_lists = Read_netlist(input_file_name)
     
     #print(input_output_lists)
     #marked all value = -1 at init
-
-    #now do the sim
-    Simulation(input_output_lists, input_vector)
-
-    # test_print(gate_list = gate_list, net_list = net_list)
-    # testit
-    # test_print(gate_list = gate_list, net_list = net_list)
-    rtstr = ""
-    for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
-        rtstr += str(net_list[output_port].value)
+    bit_vector_width = len(input_output_lists[1])
+    # print(bit_vector_width)
+    input_space = 2 ** bit_vector_width
+    for input_vector_integer in range(0,input_space):
+        input_vector = str(bin(input_vector_integer))[2:]
+        input_vector = f'{input_vector:0>{bit_vector_width}}'
+        print("input_vector", input_vector)
+        #now do the sim
+        Simulation(input_output_lists, input_vector)
+        
+        # test_print(gate_list = gate_list, net_list = net_list)
+        # testit
+        # test_print(gate_list = gate_list, net_list = net_list)
+        rtstr = ""
+        for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
+            rtstr += str(net_list[output_port].value)
         
         # print(str(net_list[output_port].value))
+        print(rtstr)
 
-    print(rtstr)
+        clear_all_values()
