@@ -10,6 +10,22 @@
 
 import sys
 
+
+
+# ONLY SCHOOL PROJECT - I might not USE this at all xD
+
+type_dict = {'invalid': -1 , 'zero': 0, 'one': 1, 'D':2, 'Dbar':3 , 'X':4}
+
+#  value_types(Enum):
+#     invalid = -1
+#     zero = 0
+#     one = 1
+#     D = 2
+#     Dbar = 3
+#     X = 4
+#
+
+
 def test_print(gate_list:[], net_list:{}):
     print (net_list.keys())
     print("self.number, self.value, self.input_gate, self.output_gate_list")    
@@ -48,6 +64,7 @@ class Net():
         
 gate_list = []
 net_list = {}
+D_frontier = []
 # input_gate_list = []
 # output_gate_list = []
 
@@ -98,42 +115,136 @@ def Read_netlist(input_file_name:str) -> []:
                     olist = [temp[x] for x in range(1,len(temp))]
                     return [ilist, olist]
             lineno += 1
-    # read the netlist file and build up 2 data structures for gates and nets
-    # test_print(gate_list = gate_list, net_list = net_list)
-    # print (net_list['1'].number, net_list['1'].input_gate, net_list['1'].output_gate_list)
-
-
-
-
-    # print(self.name, self.value, self.number, self.net1, self.net2, self.net3)
-    # for gate in gate_list:
-    #     gate.print_self()
-    # AND -1 0 1 2 4
-    # OR -1 1 2 3 5
-    # INV -1 2 4 6 -1
-    # XOR -1 3 4 5 7
-
     #gate looks fine
+def INV(i):
+    if i == 2:
+        return 3
+    if i == 3:
+        return 2
+    if i == 4:
+        return 4
+    return 1 ^ i
+
 def calc(gate):
-    #print("calclclclclc" , net_list[str(gate.net1)].number)
     if gate.net_amount == 2:
-        if gate.name == 'BUF':
-            return net_list[str(gate.net1)].value
-        elif gate.name == 'INV':
-            return 1 ^ net_list[str(gate.net1)].value
+        if net_list[str(gate.net1)].value < 2:
+            if gate.name == 'BUF':
+                return net_list[str(gate.net1)].value
+            elif gate.name == 'INV':
+                return 1 ^ net_list[str(gate.net1)].value
+        else:
+            # type_dict = {'invalid': -1 , 'zero': 0, 'one': 1, 'D':2, 'Dbar':3 , 'X':4}
+            if gate.name == 'BUF':
+                return net_list[str(gate.net1)].value
+            elif gate.name == 'INV':
+                if net_list[str(gate.net1)].value == 2:
+                    return 3
+                elif net_list[str(gate.net1)].value == 3:
+                    return 2
+                elif net_list[str(gate.net1)].value == 4:
+                    return 4
+            pass
     elif gate.net_amount == 3:
-        if gate.name == 'AND':
-            return net_list[str(gate.net1)].value & net_list[str(gate.net2)].value
-        elif gate.name == 'NAND':
-            return 1 ^ (net_list[str(gate.net1)].value & net_list[str(gate.net2)].value)
-        elif gate.name == 'OR':
-            return net_list[str(gate.net1)].value | net_list[str(gate.net2)].value
-        elif gate.name == 'NOR':
-            return 1 ^ (net_list[str(gate.net1)].value | net_list[str(gate.net2)].value)
-        elif gate.name == 'XOR':
-            return net_list[str(gate.net1)].value ^ net_list[str(gate.net2)].value
-    else:
-        print("shouldn't ever be -1")
+        if (net_list[str(gate.net1)].value < 2) and (net_list[str(gate.net2)].value < 2):
+            if gate.name == 'AND':
+                return net_list[str(gate.net1)].value & net_list[str(gate.net2)].value
+            elif gate.name == 'NAND':
+                return 1 ^ (net_list[str(gate.net1)].value & net_list[str(gate.net2)].value)
+            elif gate.name == 'OR':
+                return net_list[str(gate.net1)].value | net_list[str(gate.net2)].value
+            elif gate.name == 'NOR':
+                return 1 ^ (net_list[str(gate.net1)].value | net_list[str(gate.net2)].value)
+            elif gate.name == 'XOR':
+                return net_list[str(gate.net1)].value ^ net_list[str(gate.net2)].value
+        else:
+            # type_dict = {'invalid': -1 , 'zero': 0, 'one': 1, 'D':2, 'Dbar':3 , 'X':4}
+            if net_list[str(gate.net1)].value == 4 and (net_list[str(gate.net2)].value == 2 or net_list[str(gate.net2)].value == 3):
+                D_frontier.append(gate)
+            elif net_list[str(gate.net2)].value == 4 and (net_list[str(gate.net1)].value == 2 or net_list[str(gate.net1)].value == 3):
+                D_frontier.append(gate)
+
+            if gate.name == 'AND':
+                if (net_list[str(gate.net1)].value == 0) or (net_list[str(gate.net2)].value == 0):
+                    return 0
+                if (net_list[str(gate.net1)].value == 4) or (net_list[str(gate.net2)].value == 4):
+                    return 4
+                if (net_list[str(gate.net1)].value == 1):
+                    return net_list[str(gate.net2)].value
+                if (net_list[str(gate.net2)].value == 1):
+                    return net_list[str(gate.net1)].value
+                if (net_list[str(gate.net1)].value == 2) and (net_list[str(gate.net2)].value == 2):
+                    return 2
+                if (net_list[str(gate.net1)].value == 3) and (net_list[str(gate.net2)].value == 3):
+                    return 3
+                if (net_list[str(gate.net1)].value == 2) and (net_list[str(gate.net2)].value == 3):
+                    return 0
+                if (net_list[str(gate.net1)].value == 3) and (net_list[str(gate.net2)].value == 2):
+                    return 0
+            elif gate.name == 'NAND':
+                if (net_list[str(gate.net1)].value == 0) or (net_list[str(gate.net2)].value == 0):
+                    return INV(0)
+                if (net_list[str(gate.net1)].value == 4) or (net_list[str(gate.net2)].value == 4):
+                    return INV(4)
+                if (net_list[str(gate.net1)].value == 1):
+                    return INV(net_list[str(gate.net2)].value)
+                if (net_list[str(gate.net2)].value == 1):
+                    return INV(net_list[str(gate.net1)].value)
+                if (net_list[str(gate.net1)].value == 2) and (net_list[str(gate.net2)].value == 2):
+                    return INV(2)
+                if (net_list[str(gate.net1)].value == 3) and (net_list[str(gate.net2)].value == 3):
+                    return INV(3)
+                if (net_list[str(gate.net1)].value == 2) and (net_list[str(gate.net2)].value == 3):
+                    return INV(0)
+                if (net_list[str(gate.net1)].value == 3) and (net_list[str(gate.net2)].value == 2):
+                    return INV(0)
+            # type_dict = {'invalid': -1 , 'zero': 0, 'one': 1, 'D':2, 'Dbar':3 , 'X':4}
+            elif gate.name == 'OR':
+                if (net_list[str(gate.net1)].value == 1) or (net_list[str(gate.net2)].value == 1):
+                    return 1
+                if (net_list[str(gate.net1)].value == 4) or (net_list[str(gate.net2)].value == 4):
+                    return 4
+                if (net_list[str(gate.net1)].value == 0):
+                    return net_list[str(gate.net2)].value
+                if (net_list[str(gate.net2)].value == 0):
+                    return net_list[str(gate.net1)].value
+                if (net_list[str(gate.net1)].value == 2) and (net_list[str(gate.net2)].value == 2):
+                    return 2
+                if (net_list[str(gate.net1)].value == 3) and (net_list[str(gate.net2)].value == 3):
+                    return 3
+                if (net_list[str(gate.net1)].value == 2) and (net_list[str(gate.net2)].value == 3):
+                    return 1
+                if (net_list[str(gate.net1)].value == 3) and (net_list[str(gate.net2)].value == 2):
+                    return 1
+            elif gate.name == 'NOR':
+                if (net_list[str(gate.net1)].value == 1) or (net_list[str(gate.net2)].value == 1):
+                    return INV(1)
+                if (net_list[str(gate.net1)].value == 4) or (net_list[str(gate.net2)].value == 4):
+                    return INV(4)
+                if (net_list[str(gate.net1)].value == 0):
+                    return INV(net_list[str(gate.net2)].value)
+                if (net_list[str(gate.net2)].value == 0):
+                    return INV(net_list[str(gate.net1)].value)
+                if (net_list[str(gate.net1)].value == 2) and (net_list[str(gate.net2)].value == 2):
+                    return INV(2)
+                if (net_list[str(gate.net1)].value == 3) and (net_list[str(gate.net2)].value == 3):
+                    return INV(3)
+                if (net_list[str(gate.net1)].value == 2) and (net_list[str(gate.net2)].value == 3):
+                    return INV(1)
+                if (net_list[str(gate.net1)].value == 3) and (net_list[str(gate.net2)].value == 2):
+                    return INV(1)
+            elif gate.name == 'XOR':
+                if (net_list[str(gate.net1)].value == 4) or (net_list[str(gate.net2)].value == 4):
+                    return 4 
+                if (net_list[str(gate.net1)].value >= 2) and (net_list[str(gate.net2)].value < 2):
+                    return net_list[str(gate.net1)].value
+                if (net_list[str(gate.net1)].value < 2) and (net_list[str(gate.net2)].value >= 2):
+                    return net_list[str(gate.net2)].value
+                if (net_list[str(gate.net1)].value) == (net_list[str(gate.net2)].value):
+                    return 0
+                else:
+                    return 1
+                
+            pass
 def update_queue(used_net_tracking_list, gateQ):
     for gate in gate_list:
         if gate.number in used_net_tracking_list:
@@ -148,83 +259,65 @@ def update_queue(used_net_tracking_list, gateQ):
                     gateQ.append(gate)
                     used_net_tracking_list.append(gate.number)
 
-def Simulation(input_output_lists:[], input_vector:str):
+def Simulation(input_output_lists:[], input_vector:str, fault:[]):
     used_net_tracking_list = []
     gateQ = []
 
+    input_vector = input_vector.replace("X", "4") 
     # get main simultion process right here
     # assign logic value to input nets
     for index in range(len(input_output_lists[0])-1):
         net_list[input_output_lists[0][index]].value = int(input_vector[index])
+        if input_output_lists[0][index] == fault[0]:
+            if net_list[input_output_lists[0][index]].value == 1 and fault[1] == '0':
+                net_list[input_output_lists[0][index]].value = 3 
+            elif net_list[input_output_lists[0][index]].value == 0 and fault[1] == '1':
+                net_list[input_output_lists[0][index]].value = 2
     # assign seems to work
     
     # update queue
     update_queue(used_net_tracking_list=used_net_tracking_list, gateQ=gateQ)
     # update seems to work
 
-    # for item in gateQ:
-    #     item.print_self()
-    # for x in used_net_tracking_list:
-    #     print(x)
-    # push all gates with input net value assigned to QUEUE
-
     while len(gateQ) != 0:
         curr_gate = gateQ.pop(0)
         #print(curr_gate.number)
         if curr_gate.net_amount == 2:
             net_list[str(curr_gate.net2)].value = calc(curr_gate)
+            if str(curr_gate.net2) == fault[0]:
+                if net_list[str(curr_gate.net2)].value == 1 and fault[1] == '0':
+                    net_list[str(curr_gate.net2)].value = 3 # == Dbar
+                elif net_list[str(curr_gate.net2)].value == 0 and fault[1] == '1':
+                    net_list[str(curr_gate.net2)].value = 2 # == D
         elif curr_gate.net_amount == 3:
             net_list[str(curr_gate.net3)].value = calc(curr_gate)
+            if str(curr_gate.net3) == fault[0]: # if fault happens on current output net
+                if net_list[str(curr_gate.net3)].value == 1 and fault[1] == '0':
+                    net_list[str(curr_gate.net3)].value = 3
+                elif net_list[str(curr_gate.net3)].value == 0 and fault[1] == '1':
+                    net_list[str(curr_gate.net3)].value = 2
         update_queue(used_net_tracking_list=used_net_tracking_list, gateQ=gateQ)
-        # for item in gateQ:
-        #     item.print_self()
-        # for x in used_net_tracking_list:
-        #     print(x)
+
 
 if __name__ == "__main__":
     pass
     # assign input file and output file here.
     input_file_name = sys.argv[1]
-    input_vector_file = sys.argv[2]
-    #input_vector = sys.argv[2]
-
-    #print(input_vector)
-
-    #read_netlist done
+    input_vector = sys.argv[2]
+    fault_name = '0sa0' # WE DONT HAVE NET 0, this is just a placeholder
+    if (len(sys.argv) > 3):
+        fault_name = sys.argv[3] ## use format net + "sa" + 1/0   i.e. 15sa0, 9sa1
     input_output_lists = Read_netlist(input_file_name)
+
+    fault = fault_name.split("sa", 1)
+    Simulation(input_output_lists, input_vector, fault)
     
-    
-    #test_print(gate_list = gate_list, net_list = net_list)
+    test_print(gate_list, net_list)
 
-    #print(input_output_lists)
-    #marked all value = -1 at init
+    rtstr = ""
+    for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
+        rtstr += str(net_list[output_port].value)
 
-    #
-    # sim for all input space. MAYBE USEFUL WHO KNOWs LoL?
-    #
+    print(rtstr)
 
-    # bit_vector_width = len(input_output_lists[1])
-
-    # print(bit_vector_width)
-    # input_space = 2 ** bit_vector_width
-    # for input_vector_integer in range(0,input_space):
-    #     input_vector = str(bin(input_vector_integer))[2:]
-    #     input_vector = f'{input_vector:0>{bit_vector_width}}'
-
-    with open("./files/"+input_vector_file, 'r') as file:
-        for input_vector in file:
-            #print("input_vector", input_vector)
-            # now do the sim
-            Simulation(input_output_lists, input_vector)
-            
-            # 
-            # testit
-            # test_print(gate_list = gate_list, net_list = net_list)
-            rtstr = ""
-            for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
-                rtstr += str(net_list[output_port].value)
-            
-            # print(str(net_list[output_port].value))
-            print(rtstr)
-
-            clear_all_values()
+    clear_all_values()
