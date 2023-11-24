@@ -236,8 +236,12 @@ def calc(gate):
                 if (net_list[str(gate.net1)].value == 4) or (net_list[str(gate.net2)].value == 4):
                     return 4 
                 if (net_list[str(gate.net1)].value >= 2) and (net_list[str(gate.net2)].value < 2):
+                    if (net_list[str(gate.net2)].value == 1):
+                        return INV(net_list[str(gate.net1)].value)
                     return net_list[str(gate.net1)].value
                 if (net_list[str(gate.net1)].value < 2) and (net_list[str(gate.net2)].value >= 2):
+                    if (net_list[str(gate.net1)].value == 1):
+                        return INV(net_list[str(gate.net2)].value)
                     return net_list[str(gate.net2)].value
                 if (net_list[str(gate.net1)].value) == (net_list[str(gate.net2)].value):
                     return 0
@@ -270,9 +274,9 @@ def Simulation(input_output_lists:[], input_vector:str, fault:[]):
         net_list[input_output_lists[0][index]].value = int(input_vector[index])
         if input_output_lists[0][index] == fault[0]:
             if net_list[input_output_lists[0][index]].value == 1 and fault[1] == '0':
-                net_list[input_output_lists[0][index]].value = 3 
+                net_list[input_output_lists[0][index]].value = 2 
             elif net_list[input_output_lists[0][index]].value == 0 and fault[1] == '1':
-                net_list[input_output_lists[0][index]].value = 2
+                net_list[input_output_lists[0][index]].value = 3
     # assign seems to work
     
     # update queue
@@ -286,19 +290,23 @@ def Simulation(input_output_lists:[], input_vector:str, fault:[]):
             net_list[str(curr_gate.net2)].value = calc(curr_gate)
             if str(curr_gate.net2) == fault[0]:
                 if net_list[str(curr_gate.net2)].value == 1 and fault[1] == '0':
-                    net_list[str(curr_gate.net2)].value = 3 # == Dbar
-                elif net_list[str(curr_gate.net2)].value == 0 and fault[1] == '1':
                     net_list[str(curr_gate.net2)].value = 2 # == D
+                elif net_list[str(curr_gate.net2)].value == 0 and fault[1] == '1':
+                    net_list[str(curr_gate.net2)].value = 3 # == Dbar
         elif curr_gate.net_amount == 3:
             net_list[str(curr_gate.net3)].value = calc(curr_gate)
             if str(curr_gate.net3) == fault[0]: # if fault happens on current output net
                 if net_list[str(curr_gate.net3)].value == 1 and fault[1] == '0':
-                    net_list[str(curr_gate.net3)].value = 3
+                    net_list[str(curr_gate.net3)].value = 2 # sa0 => D
                 elif net_list[str(curr_gate.net3)].value == 0 and fault[1] == '1':
-                    net_list[str(curr_gate.net3)].value = 2
+                    net_list[str(curr_gate.net3)].value = 3 # sa1 -> Db
         update_queue(used_net_tracking_list=used_net_tracking_list, gateQ=gateQ)
 
-
+def print_D_frontier():
+    print("----DF start----")
+    for df in D_frontier:
+        df.print_self()
+    print("----DF end------")
 if __name__ == "__main__":
     pass
     # assign input file and output file here.
@@ -313,7 +321,7 @@ if __name__ == "__main__":
     Simulation(input_output_lists, input_vector, fault)
     
     test_print(gate_list, net_list)
-
+    print_D_frontier()
     rtstr = ""
     for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
         rtstr += str(net_list[output_port].value)
