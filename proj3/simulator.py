@@ -15,7 +15,7 @@ import sys
 # ONLY SCHOOL PROJECT - I might not USE this at all xD
 
 type_dict = {'invalid': -1 , 'zero': 0, 'one': 1, 'D':2, 'Dbar':3 , 'X':4}
-
+value_dict = {-1 : 'invalid' , 0 :  '0' , 1 : '1', 2: 'D', 3: 'Dbar' , 4:'X'}
 #  value_types(Enum):
 #     invalid = -1
 #     zero = 0
@@ -292,23 +292,30 @@ def Simulation(input_output_lists:[], input_vector:str, fault:[]):
         curr_gate = gateQ.pop(0)
         #print(curr_gate.number)
         if curr_gate.net_amount == 2:
+            print("Input of NO", curr_gate.number, curr_gate.name, value_dict[net_list[curr_gate.net1].value])
             net_list[str(curr_gate.net2)].value = calc(curr_gate)
             if str(curr_gate.net2) == fault[0]:
                 if net_list[str(curr_gate.net2)].value == 1 and fault[1] == '0':
                     net_list[str(curr_gate.net2)].value = 2 # == D
                 elif net_list[str(curr_gate.net2)].value == 0 and fault[1] == '1':
                     net_list[str(curr_gate.net2)].value = 3 # == Dbar
-                # elif net_list[str(curr_gate.net2)].value == 4:
-                #     net_list[str(curr_gate.net2)].value = 2 + int(fault[1])
+                elif net_list[str(curr_gate.net2)].value == 4:
+                    net_list[str(curr_gate.net2)].value = 2 + int(fault[1])
+            print("Output", value_dict[net_list[curr_gate.net2].value])
+            print()
         elif curr_gate.net_amount == 3:
+            print("Input of NO", curr_gate.number,curr_gate.name, value_dict[net_list[curr_gate.net1].value]," ",value_dict[net_list[curr_gate.net2].value])
             net_list[str(curr_gate.net3)].value = calc(curr_gate)
             if str(curr_gate.net3) == fault[0]: # if fault happens on current output net
                 if net_list[str(curr_gate.net3)].value == 1 and fault[1] == '0':
                     net_list[str(curr_gate.net3)].value = 2 # sa0 => D
                 elif net_list[str(curr_gate.net3)].value == 0 and fault[1] == '1':
                     net_list[str(curr_gate.net3)].value = 3 # sa1 -> Db
-                # elif net_list[str(curr_gate.net3)].value == 4:
-                #     net_list[str(curr_gate.net3)].value = 2 + int(fault[1])
+                elif net_list[str(curr_gate.net3)].value == 4:
+                    net_list[str(curr_gate.net3)].value = 2 + int(fault[1])
+            print("net numbers", curr_gate.net1, curr_gate.net2)
+            print("Output", value_dict[net_list[curr_gate.net3].value])
+            print()
         update_queue(used_net_tracking_list=used_net_tracking_list, gateQ=gateQ)
     #print_D_frontier()
 def print_D_frontier():
@@ -320,10 +327,6 @@ def print_D_frontier():
 def Objective():
     # Random select Df? 
     # No, always select the first Df gate :D decrease performance?? but easier to debug
-
-    # the target fault is l sa v, if value of l is -1 or x, return l, vbar
-    if net_list[fault[0]].value == -1 or net_list[fault[0]].value == 4:
-        return[fault[0], 1^ int(fault[1])]
 
     # Remember Df only possible when it is a 2 input gate
     # Remember 1 of input must be X and the other input must be D or Db
@@ -350,7 +353,7 @@ def Backtrace(j, cbar):
     if current_gate.name == "NAND" or current_gate.name == "NOR":
         parity = parity ^ 1
     while(True):
-        
+        print(current_gate_number)
         if net_list[current_gate.net1].value == 4:
             current_gate_number = net_list[current_gate.net1].input_gate
             if int(current_gate_number) == -1:
@@ -360,11 +363,10 @@ def Backtrace(j, cbar):
             if int(current_gate_number) == -1:
                 return [current_gate.net2, cbar ^ parity]
         current_gate = gate_list[current_gate_number]
-        print(current_gate_number)
         parity = 1 ^ parity
     pass
 
-def PODEM(isFirst):
+def PODEM():
     global input_vector
     print("test vector in PODEM b4 assign == " + input_vector)
     #print(input_vector)
@@ -373,7 +375,7 @@ def PODEM(isFirst):
         if net_list[output_port].value == 2 or net_list[output_port].value == 3:
             return True
     #if D_frontier is empty, Im not going to do the df prediction thing LOL
-    if len(D_frontier) == 0 and net_list[fault[0]].value != 4:
+    if len(D_frontier) == 0:
         return False
     # Objective
     [j,cbar] = Objective() # lecture notes defintion of J cbar is messed up in diff slides
@@ -395,15 +397,15 @@ def PODEM(isFirst):
     
 
     Simulation(input_output_lists, input_vector, fault)
-    if PODEM(isFirst=False):
+    if PODEM():
         return True
     
-    input_vector = input_vector[0:input_index] + str(1 ^ v) + input_vector[input_index+1:]
+    input_vector = input_vector[0:input_index] + str(1 ^ v) + input_vector[input_index:]
     Simulation(input_output_lists, input_vector, fault)
-    if PODEM(isFirst=False):
+    if PODEM():
         return True
     
-    input_vector = input_vector[0:input_index] + str(4) + input_vector[input_index+1:]
+    input_vector = input_vector[0:input_index] + str(4) + input_vector[input_index:]
     Simulation(input_output_lists, input_vector, fault)
     return False
     pass
@@ -421,15 +423,10 @@ if __name__ == "__main__":
 
     global fault
     fault = fault_name.split("sa", 1)
-
-
-
-    # # we got a very inital Xpath with K and value V
     Simulation(input_output_lists, input_vector, fault)
-
     test_print(gate_list, net_list)
     #Call Podem
-    indicator = PODEM(True)
+    indicator = True
     #
     
 
