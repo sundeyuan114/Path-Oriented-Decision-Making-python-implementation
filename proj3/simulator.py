@@ -436,7 +436,9 @@ if __name__ == "__main__":
     for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
         rtstr += str(net_list[output_port].value)
 
-    print(rtstr)
+    #print(rtstr)
+
+    print(fault_name)
 
     if indicator:
         print("test vector is " + input_vector)

@@ -1,6 +1,6 @@
-# Deyuan Sun ece6140 proj1 code starting on 9/4/2023
+# Deyuan Sun ece6140 Part3 code 
 # Finished in 10-15 hrs
-# Last modified 9/16/2023
+# Last modified 11/26/2024
 
 # usage: put all files in a folder called 'files' parallel to this python file
 # python3 .\proj1_deyuan.py s27.txt s27_input.txt >> out_s27.txt
@@ -15,7 +15,7 @@ import sys
 # ONLY SCHOOL PROJECT - I might not USE this at all xD
 
 type_dict = {'invalid': -1 , 'zero': 0, 'one': 1, 'D':2, 'Dbar':3 , 'X':4}
-
+value_dict = {-1 : 'G' , 0 :  '0' , 1 : '1', 2: 'D', 3: 'B' , 4:'X'}
 #  value_types(Enum):
 #     invalid = -1
 #     zero = 0
@@ -343,7 +343,7 @@ def Objective():
 def Backtrace(j, cbar): 
     parity = 0
     current_gate_number = net_list[j].input_gate
-    print((current_gate_number) )
+    #print((current_gate_number) )
     if int(current_gate_number) == -1: # idk it's int or str LOL
         return [j, cbar]
     current_gate = gate_list[current_gate_number]
@@ -366,12 +366,13 @@ def Backtrace(j, cbar):
 
 def PODEM(isFirst):
     global input_vector
-    print("test vector in PODEM b4 assign == " + input_vector)
+    #print("test vector in PODEM b4 assign == " + input_vector)
     #print(input_vector)
     #if D or Dbar at PO
     for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
         if net_list[output_port].value == 2 or net_list[output_port].value == 3:
             return True
+    
     #if D_frontier is empty, Im not going to do the df prediction thing LOL
     if len(D_frontier) == 0 and net_list[fault[0]].value != 4:
         return False
@@ -391,7 +392,7 @@ def PODEM(isFirst):
     #String3 = String1[0:2] + 'p' + String1[3:] 
     
     input_vector = input_vector[0:input_index] + str(v) + input_vector[input_index+1:]
-    print("test vector in PODEM after assign == " + input_vector)
+    #print("test vector in PODEM after assign == " + input_vector)
     
 
     Simulation(input_output_lists, input_vector, fault)
@@ -412,38 +413,46 @@ if __name__ == "__main__":
     # assign input file and output file here.
     input_file_name = sys.argv[1]
     global input_vector
-    input_vector = sys.argv[2]
+    input_vector = ""
     fault_name = '0sa0' # WE DONT HAVE NET 0, this is just a placeholder
-    if (len(sys.argv) > 3):
-        fault_name = sys.argv[3] ## use format net + "sa" + 1/0   i.e. 15sa0, 9sa1
+    if (len(sys.argv) > 2):
+        fault_name = sys.argv[2] ## use format net + "sa" + 1/0   i.e. 15sa0, 9sa1
     global input_output_lists
     input_output_lists = Read_netlist(input_file_name)
 
+    for i in range(len(input_output_lists[0]) - 1):
+        input_vector += 'X'
+    
     global fault
     fault = fault_name.split("sa", 1)
 
 
 
     # # we got a very inital Xpath with K and value V
-    Simulation(input_output_lists, input_vector, fault)
+    Simulation(input_output_lists, input_vector, ['0',0])
 
-    test_print(gate_list, net_list)
+    #test_print(gate_list, net_list)
     #Call Podem
+
     indicator = PODEM(True)
     #
-    
+
+    rtstr = ""
+    for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
+        rtstr += value_dict[(net_list[output_port].value)]
+    #print(rtstr)
 
     
     #print_D_frontier()
-    rtstr = ""
-    for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
-        rtstr += str(net_list[output_port].value)
 
-    print(rtstr)
 
+    
+    print("-------------------------")
+    print(input_file_name, fault_name)
     if indicator:
         print("test vector is " + input_vector)
     else:
         print("undetectable")
+    print("-------------------------")
 
     clear_all_values()
