@@ -1,4 +1,4 @@
 -------------------------
-s27.txt 1sa0
-test vector is 11X001X
+s27.txt 2sa1
+test vector is X00XXX0
 -------------------------
