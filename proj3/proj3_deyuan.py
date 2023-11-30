@@ -360,7 +360,7 @@ def Backtrace(j, cbar):
             if int(current_gate_number) == -1:
                 return [current_gate.net2, cbar ^ parity]
         current_gate = gate_list[current_gate_number]
-        print(current_gate_number)
+        #print(current_gate_number)
         parity = 1 ^ parity
     pass
 
