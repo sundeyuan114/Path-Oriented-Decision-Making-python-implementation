@@ -1,6 +1,6 @@
 # Deyuan Sun ece6140 Part3 code 
 # Finished in 10-15 hrs
-# Last modified 11/26/2024
+# Last modified 11/30/2024
 
 # usage: put all files in a folder called 'files' parallel to this python file
 # python3 .\proj1_deyuan.py s27.txt s27_input.txt >> out_s27.txt
