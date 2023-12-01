@@ -1,5 +1,5 @@
 echo ""
-echo "!!!this script only works in MAC and LINUX, no WINDOWS!!!"
+echo "!!!this script tested in MacOS and Windows!!! (NOTE: Change file permisson first)"
 echo ""
 echo "type the exact input file name (i.e., s27.txt)"
 read INFILE
