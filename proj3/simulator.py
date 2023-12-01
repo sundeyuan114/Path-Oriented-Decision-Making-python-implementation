@@ -426,7 +426,7 @@ if __name__ == "__main__":
     Simulation(input_output_lists, input_vector, fault)
     test_print(gate_list, net_list)
     #Call Podem
-    indicator = True
+    #indicator = True
     #
     
 
@@ -436,13 +436,13 @@ if __name__ == "__main__":
     for output_port in input_output_lists[1][:len(input_output_lists[1])-1]:
         rtstr += str(net_list[output_port].value)
 
-    #print(rtstr)
+    print(rtstr)
 
     print(fault_name)
 
-    if indicator:
-        print("test vector is " + input_vector)
-    else:
-        print("undetectable")
+    # if indicator:
+    #     print("test vector is " + input_vector)
+    # else:
+    #     print("undetectable")
 
     clear_all_values()

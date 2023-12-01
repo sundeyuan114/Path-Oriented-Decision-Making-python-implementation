@@ -9,7 +9,7 @@
 # python3 .\proj1_deyuan.py s349f_2.txt s349f_2_input.txt >> out_s349f_2.txt
 
 import sys
-
+import random
 
 
 # ONLY SCHOOL PROJECT - I might not USE this at all xD
@@ -328,16 +328,17 @@ def Objective():
     # Remember Df only possible when it is a 2 input gate
     # Remember 1 of input must be X and the other input must be D or Db
     # So we find the X and change it to non-controlling value.
-    if net_list[D_frontier[0].net1].value == 4:
-        if D_frontier[0].name == "AND" or D_frontier[0].name == "NAND":
-            return [D_frontier[0].net1, 1] # [string, int]
-        if D_frontier[0].name == "OR" or D_frontier[0].name == "NOR":
-            return [D_frontier[0].net1, 0]
-    elif net_list[D_frontier[0].net2].value == 4:
-        if D_frontier[0].name == "AND" or D_frontier[0].name == "NAND":
-            return [D_frontier[0].net2, 1] # [string, int]
-        if D_frontier[0].name == "OR" or D_frontier[0].name == "NOR":
-            return [D_frontier[0].net2, 0]
+    Randn = random.randint(0, len(D_frontier)-1)
+    if net_list[D_frontier[Randn].net1].value == 4:
+        if D_frontier[Randn].name == "AND" or D_frontier[Randn].name == "NAND":
+            return [D_frontier[Randn].net1, 1] # [string, int]
+        if D_frontier[Randn].name == "OR" or D_frontier[Randn].name == "NOR":
+            return [D_frontier[Randn].net1, 0]
+    elif net_list[D_frontier[Randn].net2].value == 4:
+        if D_frontier[Randn].name == "AND" or D_frontier[Randn].name == "NAND":
+            return [D_frontier[Randn].net2, 1] # [string, int]
+        if D_frontier[Randn].name == "OR" or D_frontier[Randn].name == "NOR":
+            return [D_frontier[Randn].net2, 0]
     pass
 
 def Backtrace(j, cbar): 
@@ -378,6 +379,7 @@ def PODEM(isFirst):
         return False
     # Objective
     [j,cbar] = Objective() # lecture notes defintion of J cbar is messed up in diff slides
+    #print([j,cbar])
     # Backtrace
     [k, v] = Backtrace(j,cbar)
     # IMPLY which is simultion with input
